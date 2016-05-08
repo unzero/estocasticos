@@ -1,4 +1,4 @@
-package red;
+package sistema;
 
 public class Conexion {
 

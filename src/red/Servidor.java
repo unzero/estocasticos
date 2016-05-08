@@ -1,40 +1,52 @@
 package red;
 
-import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 
-import agentes.Mensaje;
+import sistema.Mensaje;
 
 public class Servidor implements Runnable {
 	
-	public Servidor(){
-		
-		
-	}
+	public static final int PUERTO = 5001;
+	private boolean estado;
+	private LinkedBlockingDeque<Mensaje> colaDeEntrada;
 	
+	public Servidor(){
+		estado = true;
+		colaDeEntrada = new LinkedBlockingDeque<>();
+	}
+		
 	@Override
 	public void run(){
 		try{
 			Mensaje mensajeRecibido;
-			ServerSocket socketEscucha = new ServerSocket(5001);
-			System.out.println("Servidor en escucha...");
+			ServerSocket socketEscucha = new ServerSocket(PUERTO);
+			//System.out.println("Servidor en escucha...");
 			while(true){
+				//System.out.println("OK....");
 				Socket conexion = socketEscucha.accept();
-				System.out.println("Nuevo mensaje!!");
+				//System.out.println("Nuevo mensaje!!");
 				ObjectInputStream nuevoMensaje  = new ObjectInputStream(conexion.getInputStream());
 				mensajeRecibido = (Mensaje)nuevoMensaje.readObject();
-				System.out.println(mensajeRecibido.toString());
+				colaDeEntrada.push(mensajeRecibido);
+				//System.out.println(mensajeRecibido.toString());
 			}
-			
 		}catch(Exception ex){
+			estado = false;
+			//throw new ErrorDeRed("No ha sido posible iniciar el servidor");
 			System.out.println("Error al iniciar un servidor");
 		}
+	}
+	
+	public Mensaje leerMensaje(){
+		return colaDeEntrada.poll();
+	}
 		
+	public boolean obtenerEstado(){
+		return estado;
 	}
 
 }
