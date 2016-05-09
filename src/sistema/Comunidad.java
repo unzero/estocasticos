@@ -12,7 +12,7 @@ public class Comunidad {
 	
 	public Comunidad() throws Exception{
 		
-		String ip = InetAddress.getLocalHost().getHostAddress();
+		String ip = "192.168.2.10";//InetAddress.getLocalHost().getHostAddress();
 		NodoConectado autoNodo = new NodoConectado(ip,Servidor.PUERTO);
 		mensajero = Mensajero.getInstance(autoNodo);
 		Thread mensajeroT = new Thread(mensajero);

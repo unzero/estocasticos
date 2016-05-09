@@ -25,8 +25,11 @@ public class Cliente {
 	
 	public boolean enviar(){
 		try{
+			//System.out.println("OK: "+mensaje);
 			Socket conexion = new Socket(IPDestino,puertoDestino);
+			//System.out.println("OK");
 			ObjectOutputStream nuevoMensaje = new ObjectOutputStream(conexion.getOutputStream());
+			
 			nuevoMensaje.writeObject(mensaje);
 			conexion.close();
 		}catch(Exception ex){

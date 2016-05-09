@@ -45,23 +45,31 @@ public class Mensajero implements Agente{
 		
 		for(int x=0;x<10;++x){
 			for(NodoConectado nodoConectado : nodosConectados){
+				
 				//test de conexion
 				MensajeDeRed msj = new MensajeDeRed((Nodo)miNodo.clone(),nodoConectado.obtenerNodo(),new Postal("Hola!!"));
 				Cliente cl = new Cliente(msj, nodoConectado.obtenerNodo() );
+				
 				if( !cl.enviar() ){
 					System.out.println("ERROR AL ENVIAR EL MENSAJE");
 				}
+				
+				//System.out.println("Msj enviado");
 			}
 			
-			Mensaje nuevoMensaje = servidor.leerMensaje();
-			if( nuevoMensaje != null){
-				//nuevoMensaje = ((MensajeDeRed)nuevoMensaje).obtenerMensaje();
-				System.out.println("Mensaje nuevo: "+nuevoMensaje);
-			}
+			
 			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {}
+		}
+		
+		while( true ){
+			Mensaje nuevoMensaje = servidor.leerMensaje();
+			if( nuevoMensaje != null){
+				//nuevoMensaje = ((MensajeDeRed)nuevoMensaje).obtenerMensaje();
+				System.out.println("Mensaje nuevo: "+nuevoMensaje);
+			}	
 		}
 		
 	}
