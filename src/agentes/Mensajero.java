@@ -1,5 +1,6 @@
 package agentes;
 
+import java.math.BigInteger;
 import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
@@ -17,6 +18,7 @@ public class Mensajero implements Agente{
 	
 	public static Mensajero mensajero;
 	private LinkedBlockingDeque<NodoConectado> nodosConectados;
+	private LinkedBlockingDeque<Mensaje> bandeja;
 	private Servidor servidor;
 	private boolean estado;
 	private Nodo miNodo;
@@ -74,6 +76,22 @@ public class Mensajero implements Agente{
 	
 	public void agregarNodo(NodoConectado nuevoNodo){
 		nodosConectados.add(nuevoNodo);
+	}
+	
+	
+	@Override
+	public String obtenerTipo(){
+		return "MENSAJERO";
+	}
+	
+	@Override 
+	public void mensajeNuevo(Mensaje msj){
+		bandeja.add(msj);
+	}
+		
+	@Override
+	public BigInteger obtenerIdentidad(){
+		return new BigInteger("-1");
 	}
 	
 	public static Mensajero getInstance(LinkedList<NodoConectado> nodos) throws Exception{
