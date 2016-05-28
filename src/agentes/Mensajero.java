@@ -21,12 +21,12 @@ public class Mensajero implements Agente{
 	private boolean estado;
 	private Nodo miNodo;
 	
-	private Mensajero(NodoConectado autoNodo){
+	private Mensajero(LinkedList<NodoConectado> nodos){
 		estado = true;
 		nodosConectados = new LinkedBlockingDeque<>();
-		nodosConectados.add(autoNodo);
-		miNodo = autoNodo.obtenerNodo();
-		servidor = new Servidor();
+		nodosConectados.addAll(nodos);
+		miNodo = nodos.getFirst().obtenerNodo();
+		servidor = Servidor.getInstance();
 		Thread hServidor = new Thread(servidor);
 		hServidor.start();
 		try {
@@ -57,8 +57,6 @@ public class Mensajero implements Agente{
 				//System.out.println("Msj enviado");
 			}
 			
-			
-			
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {}
@@ -78,9 +76,9 @@ public class Mensajero implements Agente{
 		nodosConectados.add(nuevoNodo);
 	}
 	
-	public static Mensajero getInstance(NodoConectado autoNodo) throws Exception{
+	public static Mensajero getInstance(LinkedList<NodoConectado> nodos) throws Exception{
 		if( mensajero  == null){
-			mensajero = new Mensajero(autoNodo);
+			mensajero = new Mensajero(nodos);
 			if( !mensajero.estado ){
 				throw new Exception("ERROR CON EL MENSAJERO");
 			}

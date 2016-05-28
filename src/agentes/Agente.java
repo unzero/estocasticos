@@ -1,5 +1,8 @@
 package agentes;
 
-public interface Agente extends Runnable {
+import java.io.Serializable;
+
+public interface Agente extends Runnable, Serializable{
+	
 
 }

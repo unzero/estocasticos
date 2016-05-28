@@ -10,11 +10,13 @@ import sistema.Mensaje;
 
 public class Servidor implements Runnable {
 	
+	
+	public static Servidor servidor;
 	public static final int PUERTO = 5001;
 	private boolean estado;
 	private LinkedBlockingDeque<Mensaje> colaDeEntrada;
 	
-	public Servidor(){
+	private Servidor(){
 		estado = true;
 		colaDeEntrada = new LinkedBlockingDeque<>();
 	}
@@ -49,4 +51,12 @@ public class Servidor implements Runnable {
 		return estado;
 	}
 
+	
+	public static Servidor getInstance(){
+		if( servidor == null ){
+			servidor = new Servidor();
+		}
+		return servidor;
+	}
+	
 }
