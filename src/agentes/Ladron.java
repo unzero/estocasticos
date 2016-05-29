@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
+
 import sistema.Ciudad;
 import sistema.Mensaje;
 
@@ -38,6 +40,9 @@ public class Ladron implements Agente{
 					if( nx.obtenerTipo().equals("MIGRACION") ){
 						posX = ((Migracion)nx).obtenerDestino()[0];
 						posY = ((Migracion)nx).obtenerDestino()[1];
+					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
+						System.out.println("He sido capturado: "+cedula);
+						return;
 					}
 					//System.out.println("Migracion "+this);
 				}
@@ -65,7 +70,7 @@ public class Ladron implements Agente{
 	}
 	
 	private void robo() throws Exception{
-		//System.out.println("Intento de robo");
+		System.out.println("Intento de robo");
 		Agente victima = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
 		//System.out.println("Victima");
 		if( victima.obtenerTipo().equals("CIUDADANO") ){

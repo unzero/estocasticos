@@ -14,4 +14,12 @@ public class Punto {
 		return "Punto: "+x+","+y;
 	}
 	
+	public int obtenerX(){
+		return x;
+	}
+	
+	public int obtenerY(){
+		return y;
+	}
+	
 }
