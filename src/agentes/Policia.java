@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+
 import mensajes.Mensaje;
 import mensajes.Seguridad;
 import sistema.Ciudad;
@@ -68,7 +70,12 @@ public class Policia implements Agente,Comparable<Policia> {
 	
 	private void requisa() throws Exception{
 		Agente civil = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
-		if( civil != null && civil.obtenerTipo().equals("LADRON") ){
+		BetaDistribution beta = new BetaDistribution(2, 1);
+		double exito = beta.density(efectividad);
+		exito *= beta.density(1.0-Ciudad.getInstance(null, null).obtenerIndice(posX, posY)+0.01);
+		
+		if( civil != null && civil.obtenerTipo().equals("LADRON") && exito >= 0.5 ){
+			
 			civil.mensajeNuevo(new Seguridad("CAPTURADO",posX,posY));
 			Ciudad.getInstance(null, null).mensajeNuevo(new Seguridad("CAPTURADO",posX, posY));
 		}

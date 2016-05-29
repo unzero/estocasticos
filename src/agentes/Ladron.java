@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.concurrent.LinkedBlockingDeque;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+
 import mensajes.Mensaje;
 import mensajes.Migracion;
 import mensajes.Seguridad;
@@ -44,7 +46,8 @@ public class Ladron implements Agente{
 						posY = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
 						System.out.println("He sido capturado: "+cedula);
-						return;
+						habilidad = 0.01;
+						//return;
 					}
 					//System.out.println("Migracion "+this);
 				}
@@ -79,10 +82,25 @@ public class Ladron implements Agente{
 		Agente victima = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
 		//System.out.println("Victima");
 		double indice = Ciudad.getInstance(null, null).obtenerIndice(posX, posY);
-		if( victima.obtenerTipo().equals("CIUDADANO") ){
-			
-			victima.mensajeNuevo(new Seguridad("ROBO",posX,posY));
-			Ciudad.getInstance(null,null).mensajeNuevo(new Seguridad("ROBO",posX, posY));
+		if( victima != null  && victima.obtenerTipo().equals("CIUDADANO") ){
+			BetaDistribution beta = new BetaDistribution(2, 1);
+			double exito = beta.density(habilidad);
+			exito *= beta.density(1.0-Ciudad.getInstance(null, null).obtenerIndice(posX, posY)+0.01);
+			//exito *= beta.density(rand.nextDouble());
+			if( exito >= 0.5 ){
+				victima.mensajeNuevo(new Seguridad("ROBO",posX,posY));
+				Ciudad.getInstance(null,null).mensajeNuevo(new Seguridad("ROBO",posX, posY));
+				habilidad = habilidad*1.1;
+			}else{
+				habilidad = habilidad*1.05;
+			}
+			if( habilidad < 0 ){
+				habilidad = 0;
+			}
+			if( habilidad > 0.97 ){
+				habilidad = 0.97;
+			}
+			System.out.println("Ladron: "+cedula+" : "+habilidad);
 		}
 	}
 	

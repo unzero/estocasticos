@@ -18,7 +18,8 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.ListModel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 
 import agentes.Agente;
@@ -63,7 +64,7 @@ public class VistaCiudad extends JFrame implements Observer{
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
 		try{
-			int[] datos = {5,5,5,5};
+			int[] datos = {10,25,250,5};
 			LinkedList<String> direcciones = new LinkedList<>();
 			direcciones.add("192.168.2.10");
 			Ciudad ct = Ciudad.getInstance(datos, direcciones);
@@ -83,7 +84,7 @@ public class VistaCiudad extends JFrame implements Observer{
 							try {
 								int x;
 								x=Ciudad.getInstance(null,null).obtenerDimension();
-
+								String[] columnas = {"Tipo", "Codigo"};
 								for(int i=0;i<x;++i){
 									for (int j=0; j<x;++j){
 										if(e.getSource()==img[i][j]){
@@ -92,23 +93,24 @@ public class VistaCiudad extends JFrame implements Observer{
 											ArrayList <Agente> personas =Ciudad.getInstance(null, null).obtenerAHabitantes(i, j);
 											ventana = new JDialog();
 											ventana.setSize(new Dimension(100,200));
-											//GridLayout dango = new GridLayout(0,1);
-											//ventana.setLayout(dango);
 											ventana.setVisible(true);
 											ventana.setLocationRelativeTo(null);
-											BigInteger[] lista = new BigInteger[personas.size()];
-											//JButton []list = new JButton[personas.size()];
+											//BigInteger[] lista = new BigInteger[personas.size()];
+											Object[][] datos = new Object[personas.size()][2];
 											
 											for (Agente key : personas){													
-												//list[aux]=new JButton(""+(key.obtenerIdentidad()));
-												//ventana.add(list[aux]);
-												lista[aux]=key.obtenerIdentidad();
-												
+												//lista[aux]=key.obtenerIdentidad();
+												datos[aux][0]=key.obtenerTipo();
+												datos[aux][1]=key.obtenerIdentidad();
 												++aux;
 													
 											}
-											JList<BigInteger> miLista = new JList<BigInteger>(lista);
-											ventana.add(miLista);
+											//JList<BigInteger> miLista = new JList<BigInteger>(lista);
+											JTable tabla = new JTable (datos, columnas);
+											ventana.setLayout(new BorderLayout());
+											ventana.add(tabla.getTableHeader(), BorderLayout.PAGE_START);
+											ventana.add(tabla, BorderLayout.CENTER);						
+											ventana.add(tabla);
 											}
 									}
 								}
@@ -142,35 +144,32 @@ public class VistaCiudad extends JFrame implements Observer{
 			ex.printStackTrace();
 		}
 	}
-	
 
-	
+
+
 	@Override
 	public void update(Observable o, Object arg)	 {
-		
-		System.out.println("Cambio en el modelo");
-		
+
+		//System.out.println("Cambio en el modelo");
+
 		Punto aux = (Punto)arg;
 		int x=aux.obtenerX();
 		int y=aux.obtenerY();
 		double index, red, green;
-		
+
 		try {
 			index = Ciudad.getInstance(null,null).obtenerIndice(x, y);
 			red=(1-index)*255;
 			green=index*255;
 			if (index > 0.5){
 				img[x][y].setBackground(new Color((int)red*2,255,0));
-				}else {
-					img[x][y].setBackground(new Color(255,(int) green*2,0));
-				}
+			}else {
+				img[x][y].setBackground(new Color(255,(int) green*2,0));
+			}
 		} catch (Exception e) {
 			// TODO Auto-generated catch b lock
 			e.printStackTrace();
 		}
-		
-	}
-	
-	
 
+	}
 }
