@@ -1,9 +1,9 @@
 package sistema;
 
-import java.awt.Point;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Observable;
@@ -11,7 +11,15 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import agentes.*;
+import agentes.Agente;
+import agentes.Alcalde;
+import agentes.Ciudadano;
+import agentes.Ladron;
+import agentes.Mensajero;
+import agentes.Policia;
+import mensajes.Mensaje;
+import mensajes.Migracion;
+import mensajes.Seguridad;
 import red.Servidor;
 
 public class Ciudad extends Observable implements Agente{
@@ -108,7 +116,9 @@ public class Ciudad extends Observable implements Agente{
 			//INICIALIZACION DE LOS AGENTES DE POLICIA
 			for(int x=0;x<datos[3];++x){
 				int i = rand.nextInt(dimension), j = rand.nextInt(dimension);
-				new Thread(new Policia(i, j)).start();
+				Policia pol = new Policia(i,j,rand.nextDouble());
+				new Thread(pol).start();
+				policia.put(new BigInteger(""+x), pol);
 			}
 			
 			//CREACION AGENTES CRIPTOGRAFO Y ALCALDE
@@ -135,15 +145,16 @@ public class Ciudad extends Observable implements Agente{
 					}else{
 						posicion[msj.obtenerOrigen()[0]][msj.obtenerOrigen()[1]].remove(msj.obtenerMigrante().obtenerIdentidad());
 						posicion[msj.obtenerDestino()[0]][msj.obtenerDestino()[1]].put(msj.obtenerMigrante().obtenerIdentidad(), true);
-						msj.obtenerMigrante().mensajeNuevo(new Migracion(null,msj.obtenerOrigen(),msj.obtenerDestino()));	
+						msj.obtenerMigrante().mensajeNuevo(new Migracion("MIGRACION",null,msj.obtenerOrigen(),msj.obtenerDestino()));	
 					}
 				}else if( nx.obtenerTipo().equals("ROBO") ){
-					recalcularIndice(((Robo)nx).obtenerX(), ((Robo)nx).obtenerY(), -1);
+					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), -1);
 				}else if( nx.obtenerTipo().equals("CAPTURADO") ){
-					recalcularIndice(((Capturado)nx).obtenerX(), ((Capturado)nx).obtenerY(), 1);
+					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 1);
+				}else if( nx.obtenerTipo().equals("VIGILANCIA") ){
+					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 0.2);
 				}
 			}
-
 		}
 	}
 
@@ -151,7 +162,7 @@ public class Ciudad extends Observable implements Agente{
 		return indiceSeguridad[i][j];
 	}
 
-	private void recalcularIndice(int i,int j,int influencia){
+	private void recalcularIndice(int i,int j,double influencia){
 		indiceSeguridad[i][j] = indiceSeguridad[i][j]*(1.0 + 0.1*influencia);
 		if( indiceSeguridad[i][j] < 0 ){
 			indiceSeguridad[i][j] = 0;
@@ -159,7 +170,7 @@ public class Ciudad extends Observable implements Agente{
 			indiceSeguridad[i][j] = 1;
 		}
 		setChanged();
-		System.out.println(indiceSeguridad[i][j]);
+		//System.out.println(indiceSeguridad[i][j]);
 		notifyObservers(new Punto(i,j));
 	}
 
@@ -187,6 +198,16 @@ public class Ciudad extends Observable implements Agente{
 			return null;
 		}
 		return habitantes.get(cc[rand.nextInt(cc.length)]);
+	}
+	
+	public LinkedList<Policia> obtenerMejoresPolicias(int cantidad){
+		Policia[] ag = policia.values().toArray(new Policia[0]);
+		Arrays.sort(ag);
+		LinkedList<Policia> ret = new LinkedList<>();
+		for(int x=0;x<cantidad;++x){
+			ret.add(ag[x]);
+		}
+		return ret;
 	}
 
 	public BigInteger cifrar(BigInteger identidadOriginal){

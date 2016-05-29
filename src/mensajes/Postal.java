@@ -1,6 +1,4 @@
-package agentes;
-
-import sistema.Mensaje;
+package mensajes;
 
 public class Postal implements Mensaje{
 	

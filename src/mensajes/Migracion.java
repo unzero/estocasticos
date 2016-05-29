@@ -1,13 +1,15 @@
-package agentes;
+package mensajes;
 
-import sistema.Mensaje;
+import agentes.Agente;
 
 public class Migracion implements Mensaje{
 	
 	private Agente migrante;
 	private int[] org,des;
+	private String tipo;
 	
-	public Migracion(Agente mg,int[] orgn,int[] dest){
+	public Migracion(String tp,Agente mg,int[] orgn,int[] dest){
+		tipo = tp;
 		migrante = mg;
 		org = orgn;
 		des = dest;
@@ -27,7 +29,7 @@ public class Migracion implements Mensaje{
 	
 	@Override
 	public String obtenerTipo(){
-		return "MIGRACION";
+		return tipo;
 	}
 
 }

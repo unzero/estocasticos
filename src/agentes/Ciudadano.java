@@ -3,7 +3,7 @@ package agentes;
 import java.math.BigInteger;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import sistema.Mensaje;
+import mensajes.Mensaje;
 
 public class Ciudadano implements Agente{
 

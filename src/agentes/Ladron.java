@@ -4,10 +4,10 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import org.omg.PortableServer.ID_ASSIGNMENT_POLICY_ID;
-
+import mensajes.Mensaje;
+import mensajes.Migracion;
+import mensajes.Seguridad;
 import sistema.Ciudad;
-import sistema.Mensaje;
 
 public class Ladron implements Agente{
 
@@ -20,6 +20,7 @@ public class Ladron implements Agente{
 	private int posX, posY;
 	private LinkedBlockingDeque<Mensaje> bandeja;
 	private SecureRandom rand;
+	private double habilidad;
 
 	public Ladron(BigInteger cc,int x,int y){
 		bandeja = new LinkedBlockingDeque<>();
@@ -27,6 +28,7 @@ public class Ladron implements Agente{
 		cedula = cc;
 		posX = x;
 		posY = y;
+		habilidad = rand.nextDouble();
 	}
 
 	@Override
@@ -50,6 +52,9 @@ public class Ladron implements Agente{
 				case MIGRACION_INT:
 					migracion_int();
 					break;
+				case MIGRACION_OUT:
+					migracion_out();
+					break;
 				case ROBO:
 					robo();
 					break;
@@ -66,18 +71,22 @@ public class Ladron implements Agente{
 		int j = rand.nextInt(Ciudad.getInstance(null,null).obtenerDimension());
 		int[] org = {posX,posY};
 		int[] des = {i,j};
-		Ciudad.getInstance(null,null).mensajeNuevo(new Migracion(this,org,des));	
+		Ciudad.getInstance(null,null).mensajeNuevo(new Migracion("MIGRACION",this,org,des));	
 	}
 	
 	private void robo() throws Exception{
 		System.out.println("Intento de robo");
 		Agente victima = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
 		//System.out.println("Victima");
+		double indice = Ciudad.getInstance(null, null).obtenerIndice(posX, posY);
 		if( victima.obtenerTipo().equals("CIUDADANO") ){
-			victima.mensajeNuevo(new Robo(posX,posY));
-			Ciudad.getInstance(null,null).mensajeNuevo(new Robo(posX, posY));
+			
+			victima.mensajeNuevo(new Seguridad("ROBO",posX,posY));
+			Ciudad.getInstance(null,null).mensajeNuevo(new Seguridad("ROBO",posX, posY));
 		}
 	}
+	
+	private void migracion_out(){}
 
 	private int siguienteAccion(){
 		double nx = rand.nextGaussian();

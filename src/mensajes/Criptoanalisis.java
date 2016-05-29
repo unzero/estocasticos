@@ -1,10 +1,9 @@
-package agentes;
+package mensajes;
 
 import java.math.BigInteger;
 import java.util.LinkedList;
 
 import red.Nodo;
-import sistema.Mensaje;
 
 public class Criptoanalisis implements Mensaje {
 	

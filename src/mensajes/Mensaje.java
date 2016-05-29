@@ -1,4 +1,4 @@
-package sistema;
+package mensajes;
 
 import java.io.Serializable;
 

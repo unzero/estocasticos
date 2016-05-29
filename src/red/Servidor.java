@@ -6,7 +6,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.concurrent.LinkedBlockingDeque;
 
-import sistema.Mensaje;
+import mensajes.Mensaje;
 
 public class Servidor implements Runnable {
 	

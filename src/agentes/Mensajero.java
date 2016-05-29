@@ -9,11 +9,13 @@ import java.util.concurrent.LinkedBlockingDeque;
 import javax.sql.rowset.spi.SyncResolver;
 import javax.swing.plaf.SliderUI;
 
+import mensajes.Criptoanalisis;
+import mensajes.Criptoanalizar;
+import mensajes.Mensaje;
+import mensajes.MensajeDeRed;
 import red.Cliente;
-import red.MensajeDeRed;
 import red.Nodo;
 import red.Servidor;
-import sistema.Mensaje;
 import sistema.NodoConectado;
 
 public class Mensajero implements Agente{

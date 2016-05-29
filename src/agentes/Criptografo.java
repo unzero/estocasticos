@@ -7,8 +7,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.sql.rowset.spi.SyncResolver;
 
+import mensajes.Criptoanalisis;
+import mensajes.Criptoanalizar;
+import mensajes.Mensaje;
 import sistema.Ciudad;
-import sistema.Mensaje;
 
 public class Criptografo implements Agente {
 

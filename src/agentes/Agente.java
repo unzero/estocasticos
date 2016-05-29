@@ -3,7 +3,7 @@ package agentes;
 import java.io.Serializable;
 import java.math.BigInteger;
 
-import sistema.Mensaje;
+import mensajes.Mensaje;
 
 public interface Agente extends Runnable, Serializable{
 	

@@ -1,12 +1,12 @@
-package agentes;
+package mensajes;
 
-import sistema.Mensaje;
+public class Seguridad implements Mensaje {
 
-public class Capturado implements Mensaje {
-	
+	private String tipo;
 	private int posX,posY;
 	
-	public Capturado(int x,int y){
+	public Seguridad(String tp,int x,int y){
+		tipo = tp;
 		posX = x;
 		posY = y;
 	}
@@ -18,10 +18,10 @@ public class Capturado implements Mensaje {
 	public int obtenerY(){
 		return posY;
 	}
-
+	
 	@Override
 	public String obtenerTipo() {
-		return "CAPTURADO";
+		return tipo;
 	}
 
 }

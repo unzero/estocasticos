@@ -3,7 +3,7 @@ package red;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import sistema.Mensaje;
+import mensajes.Mensaje;
 
 public class Cliente {
 	

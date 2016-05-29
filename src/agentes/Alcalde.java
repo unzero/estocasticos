@@ -1,6 +1,7 @@
 package agentes;
 
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Set;
@@ -9,7 +10,10 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.sound.midi.Synthesizer;
 
-import sistema.Mensaje;
+import mensajes.Criptoanalisis;
+import mensajes.Mensaje;
+import mensajes.Seguridad;
+import sistema.Ciudad;
 
 public class Alcalde implements Agente{
 	
@@ -17,10 +21,12 @@ public class Alcalde implements Agente{
 	private LinkedBlockingDeque<Mensaje> bandeja;
 	private Set<BigInteger> ciudadanos;
 	private ConcurrentHashMap<BigInteger, Boolean> buscados;
+	private SecureRandom rand;
 	
 	private Alcalde(Set<BigInteger> cd){
 		bandeja = new LinkedBlockingDeque<>();
 		buscados = new ConcurrentHashMap<>();
+		rand = new SecureRandom();
 		ciudadanos = cd;
 	}
 	
@@ -35,12 +41,33 @@ public class Alcalde implements Agente{
 					validarSospechosos(((Criptoanalisis)nx).obtenerIdentidades());
 				}
 			}
+			organizarRedada();
 			Thread.sleep(5000);
 		}
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 		
+	}
+	
+	private void organizarRedada() throws Exception{
+		int dim = Ciudad.getInstance(null, null).obtenerDimension();
+		int nx = -1;
+		int ny = -1;
+		double mIndice = 2;
+		for(int x=0;x<dim+dim;++x){
+			int tx = rand.nextInt(dim);
+			int ty = rand.nextInt(dim);
+			if( Ciudad.getInstance(null, null).obtenerIndice(tx, ty) < mIndice ){
+				mIndice = Ciudad.getInstance(null, null).obtenerIndice(tx, ty);
+				nx = tx;
+				ny = ty;
+			}
+		}
+		LinkedList<Policia> escuadron = Ciudad.getInstance(null, null).obtenerMejoresPolicias(2);
+		for( Policia pol : escuadron ){
+			pol.mensajeNuevo(new Seguridad("REDADA", nx, ny));
+		}
 	}
 	
 	public void validarSospechosos(LinkedList<BigInteger> sospechosos){

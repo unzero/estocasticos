@@ -1,6 +1,6 @@
-package red;
+package mensajes;
 
-import sistema.Mensaje;
+import red.Nodo;
 
 public class MensajeDeRed implements Mensaje{
 	
