@@ -23,6 +23,7 @@ public class Ladron implements Agente{
 	private LinkedBlockingDeque<Mensaje> bandeja;
 	private SecureRandom rand;
 	private double habilidad;
+	private int mult = 10;
 
 	public Ladron(BigInteger cc,int x,int y){
 		bandeja = new LinkedBlockingDeque<>();
@@ -45,9 +46,10 @@ public class Ladron implements Agente{
 						posX = ((Migracion)nx).obtenerDestino()[0];
 						posY = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
-						System.out.println("He sido capturado: "+cedula);
+						//System.out.println("He sido capturado: "+cedula);
 						habilidad = 0.5*habilidad;
-						Thread.sleep(10000);
+						Thread.sleep((mult/10)*10000);
+						mult++;
 						//return;
 					}
 					//System.out.println("Migracion "+this);
@@ -58,7 +60,7 @@ public class Ladron implements Agente{
 					break;
 				case MIGRACION_OUT:
 					migracion_out();
-					break;
+					return;
 				case ROBO:
 					robo();
 					break;
@@ -71,10 +73,41 @@ public class Ladron implements Agente{
 	}
 	
 	private void migracion_int() throws Exception {
-		int i = rand.nextInt(Ciudad.getInstance(null,null).obtenerDimension());
-		int j = rand.nextInt(Ciudad.getInstance(null,null).obtenerDimension());
+		int dim = Ciudad.getInstance(null, null).obtenerDimension();
+		int[] i = new int[dim];
+		int[] j = new int[dim];
+		double[] indice = new double[dim];
+		int[] personas = new int[dim];
+		for(int x=0;x<dim;++x){
+			i[x] = rand.nextInt(dim);
+			j[x] = rand.nextInt(dim);
+			indice[x] = Ciudad.getInstance(null, null).obtenerIndice(i[x], j[x]);
+			personas[x] = Ciudad.getInstance(null, null).cantidadHabitantes(i[x], j[x]);
+		}
+		for(int x=0;x<1;++x){
+			for(int y=x+1;y<dim;++y){
+				if( personas[y] > personas[x] || (personas[y] == personas[x] && indice[y] >= indice[x]) ){
+					int tmp0 = i[x];
+					i[x] = i[y];
+					i[y] = tmp0;
+					
+					tmp0 = j[x];
+					j[x] = j[y];
+					j[y] = tmp0;
+					
+					tmp0 = personas[x];
+					personas[x] = personas[y];
+					personas[y] = tmp0;
+					
+					double tmp = indice[x];
+					indice[x] = indice[y];
+					indice[y] = tmp;
+				}
+			}
+		}
+		
 		int[] org = {posX,posY};
-		int[] des = {i,j};
+		int[] des = {i[0],j[0]};
 		Ciudad.getInstance(null,null).mensajeNuevo(new Migracion("MIGRACION",this,org,des));	
 	}
 	
@@ -95,8 +128,8 @@ public class Ladron implements Agente{
 			}else{
 				habilidad = habilidad*1.05;
 			}
-			if( habilidad < 0 ){
-				habilidad = 0;
+			if( habilidad < 0.01 ){
+				habilidad = 0.01;
 			}
 			if( habilidad > 0.97 ){
 				habilidad = 0.97;
@@ -105,14 +138,17 @@ public class Ladron implements Agente{
 		}
 	}
 	
-	private void migracion_out(){}
+	private void migracion_out() throws Exception{
+		int[] pos = {posX,posY};
+		Ciudad.getInstance(null, null).mensajeNuevo(new Migracion("INMIGRACION", this, pos, null));
+	}
 
 	private int siguienteAccion(){
-		double nx = rand.nextGaussian();
-		if( nx < 0.2 ){
-			return MIGRACION_INT;
-		}else if( nx < 0.4){
+		double nx = rand.nextDouble();
+		if( nx < 0.05 ){
 			return MIGRACION_OUT;
+		}else if( nx < 0.4){
+			return MIGRACION_INT;
 		}
 		return ROBO;
 	}

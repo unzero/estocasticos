@@ -64,7 +64,7 @@ public class Alcalde implements Agente{
 				ny = ty;
 			}
 		}
-		LinkedList<Policia> escuadron = Ciudad.getInstance(null, null).obtenerMejoresPolicias(2);
+		LinkedList<Policia> escuadron = Ciudad.getInstance(null, null).obtenerPolicias(2);
 		for( Policia pol : escuadron ){
 			pol.mensajeNuevo(new Seguridad("REDADA", nx, ny));
 		}

@@ -45,7 +45,7 @@ public class Ciudad extends Observable implements Agente{
 	private Ciudad(int[] datos,LinkedList<String> direcciones){
 		estado = true;
 		try{
-			
+
 			//CONEXION CON LOS OTROS NODOS
 			LinkedList<NodoConectado> nodos = new LinkedList<>();
 			for(String ip : direcciones){
@@ -54,7 +54,7 @@ public class Ciudad extends Observable implements Agente{
 			mensajero = Mensajero.getInstance(nodos);
 			Thread mens_th = new Thread(mensajero);
 			mens_th.start();
-			
+
 			//DATOS BASICOS DE LA CIUDAD, COMO SU INDICE DE SEGUIRDAD INICIAL
 			dimension = datos[0];
 			rand = new SecureRandom();
@@ -96,7 +96,7 @@ public class Ciudad extends Observable implements Agente{
 				posicion[i][j].put(cc, true);
 				//System.out.println("OK");
 			}
-			
+
 			//INCIALIZACION DE AGENTES CIUDADANOS
 			for(int x=0;x<datos[2];++x){
 				BigInteger cc = new BigInteger(30, new SecureRandom()).mod(identidad);
@@ -112,7 +112,7 @@ public class Ciudad extends Observable implements Agente{
 				posicion[i][j].put(cc, true);
 				//System.out.println("OK");
 			}			
-			
+
 			//INICIALIZACION DE LOS AGENTES DE POLICIA
 			for(int x=0;x<datos[3];++x){
 				int i = rand.nextInt(dimension), j = rand.nextInt(dimension);
@@ -120,12 +120,12 @@ public class Ciudad extends Observable implements Agente{
 				new Thread(pol).start();
 				policia.put(new BigInteger(""+x), pol);
 			}
-			
+
 			//CREACION AGENTES CRIPTOGRAFO Y ALCALDE
 			//new Thread(Criptografo.getInstance(identidad,coprimos)).start();
 			new Thread(Alcalde.getInstance(cedulas.keySet())).start();
 
-			
+
 		}catch(Exception ex){
 			System.out.println(ex.getMessage());
 			estado = false;
@@ -140,13 +140,13 @@ public class Ciudad extends Observable implements Agente{
 				Mensaje nx = bandeja.pollFirst();
 				if( nx.obtenerTipo().equals("MIGRACION")){
 					Migracion msj  = (Migracion)nx;
-					if( msj.obtenerDestino() == null){
-						//MIGRACION HACIA OTRA CIUDAD
-					}else{
-						posicion[msj.obtenerOrigen()[0]][msj.obtenerOrigen()[1]].remove(msj.obtenerMigrante().obtenerIdentidad());
-						posicion[msj.obtenerDestino()[0]][msj.obtenerDestino()[1]].put(msj.obtenerMigrante().obtenerIdentidad(), true);
-						msj.obtenerMigrante().mensajeNuevo(new Migracion("MIGRACION",null,msj.obtenerOrigen(),msj.obtenerDestino()));	
-					}
+					posicion[msj.obtenerOrigen()[0]][msj.obtenerOrigen()[1]].remove(msj.obtenerMigrante().obtenerIdentidad());
+					posicion[msj.obtenerDestino()[0]][msj.obtenerDestino()[1]].put(msj.obtenerMigrante().obtenerIdentidad(), true);
+					msj.obtenerMigrante().mensajeNuevo(new Migracion("MIGRACION",null,msj.obtenerOrigen(),msj.obtenerDestino()));	
+				}else if( nx.obtenerTipo().equals("INMIGRACION") ){
+					inmigrar((Migracion)nx);
+				}else if( nx.obtenerTipo().startsWith("INMIGRACION")){
+					nuevaInmigracion((Migracion)nx);
 				}else if( nx.obtenerTipo().equals("ROBO") ){
 					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), -1);
 				}else if( nx.obtenerTipo().equals("CAPTURADO") ){
@@ -192,7 +192,7 @@ public class Ciudad extends Observable implements Agente{
 	public int obtenerDimension(){
 		return dimension;
 	}
-	
+
 	public Agente obtenerHabitante(int x,int y){
 		BigInteger[] cc = posicion[x][y].keySet().toArray(new BigInteger[0]);
 		if( cc.length == 0){
@@ -200,12 +200,12 @@ public class Ciudad extends Observable implements Agente{
 		}
 		return habitantes.get(cc[rand.nextInt(cc.length)]);
 	}
-	
-	public LinkedList<Policia> obtenerMejoresPolicias(int cantidad){
+
+	public LinkedList<Policia> obtenerPolicias(int cantidad){
 		LinkedList<Policia> ret = new LinkedList<>();
 		/*
 		Arrays.sort(ag);
-	
+
 		for(int x=0;x<cantidad;++x){
 			ret.add(ag[x]);
 		}*/
@@ -216,15 +216,14 @@ public class Ciudad extends Observable implements Agente{
 	}
 
 	public BigInteger cifrar(BigInteger identidadOriginal){
-		
 		return identidadOriginal;
 	}
-	
+
 	public BigInteger obtenerIdentidadCifrada(){
 		BigInteger[] identidades = ladrones.keySet().toArray(new BigInteger[0]);
 		return ladrones.get(identidades[rand.nextInt(identidades.length)]);
 	}
-	
+
 	private LinkedList<BigInteger> buscarCoprimos(){
 		LinkedList<BigInteger> ret = new LinkedList<>();
 		BigInteger x = new BigInteger("1");
@@ -236,7 +235,26 @@ public class Ciudad extends Observable implements Agente{
 		}
 		return ret;
 	}
-	
+
+	private void inmigrar(Migracion nx){
+		try{
+			System.out.println("Nueva inmigracion: "+nx.obtenerMigrante().obtenerIdentidad());
+			cedulas.remove(nx.obtenerMigrante().obtenerIdentidad());
+			ladrones.remove(nx.obtenerMigrante().obtenerIdentidad());
+			habitantes.remove(nx.obtenerMigrante().obtenerIdentidad());
+			posicion[nx.obtenerOrigen()[0]][nx.obtenerOrigen()[1]].remove(nx.obtenerMigrante().obtenerIdentidad());
+			String tipo = "INMIGRACION";
+			if( nx.obtenerMigrante().obtenerTipo().equals("LADRON") ){
+				tipo += "L";
+			}else{
+				tipo += "C";
+			}	
+			Mensajero.getInstance(null).mensajeNuevo(new Migracion(tipo, null, null, null));
+		}catch(Exception ex){
+			ex.printStackTrace();
+		}
+	}
+
 	public ArrayList<Agente> obtenerAHabitantes(int x, int y){
 		ArrayList <Agente> personas = new ArrayList<Agente>();
 		for (BigInteger key : posicion[x][y].keySet()){
@@ -244,7 +262,31 @@ public class Ciudad extends Observable implements Agente{
 		}
 		return personas;
 	}
-		
+
+	public int cantidadHabitantes(int i,int j){
+		return posicion[i][j].size();
+	}
+	
+	private void nuevaInmigracion(Migracion nx){
+		BigInteger cc = new BigInteger(30, new SecureRandom()).mod(identidad);
+		while( cedulas.containsKey(cc) ){
+			cc = new BigInteger(100, new SecureRandom()).mod(identidad);
+		}
+		cedulas.put(cc, true);
+		int i = new Random().nextInt(dimension), j = new Random().nextInt(dimension);
+		Agente ag = null;
+		if( nx.obtenerTipo().equals("INMIGRACIONL") ){
+			ag = new Ladron(cc, i, j);
+		}else{
+			ag = new Ciudadano(cc, i, j);
+		}
+		habitantes.put(cc, ag);
+		Thread cd_th = new Thread(ag);
+		cd_th.start();
+		posicion[i][j].put(cc, true);
+		System.out.println("Nueva entrada de inmigrante");
+	}
+	
 	@Override
 	public String obtenerTipo(){
 		return "CIUDAD";

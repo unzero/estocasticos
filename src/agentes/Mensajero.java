@@ -13,9 +13,11 @@ import mensajes.Criptoanalisis;
 import mensajes.Criptoanalizar;
 import mensajes.Mensaje;
 import mensajes.MensajeDeRed;
+import mensajes.Migracion;
 import red.Cliente;
 import red.Nodo;
 import red.Servidor;
+import sistema.Ciudad;
 import sistema.NodoConectado;
 
 public class Mensajero implements Agente{
@@ -62,15 +64,21 @@ public class Mensajero implements Agente{
 		}
 		 */
 		System.out.println("Mensajero iniciado");
+		try{
 		while( true ){
 
 			//LECTURA DE MENSAJE EXTERNO -> INTERNO
 			Mensaje nuevoMensaje = servidor.leerMensaje();
 			if( nuevoMensaje != null){
-				if( nuevoMensaje.obtenerTipo().equals("CRIPTOANALIZAR") ){
+				/*if( nuevoMensaje.obtenerTipo().equals("CRIPTOANALIZAR") ){
 					Criptografo.getInstance(null,null).mensajeNuevo(nuevoMensaje);
 				}else if( nuevoMensaje.obtenerTipo().equals("CRIPTOANALISIS") ){
 					Alcalde.getInstance(null).mensajeNuevo(nuevoMensaje);
+				}*/
+				if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("INMIGRACION")){
+					System.out.println("Un nuevo inmigrante");
+					Ciudad.getInstance(null,null).mensajeNuevo(new Migracion(
+							((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo(),null,null,null));
 				}
 			}	
 
@@ -81,8 +89,13 @@ public class Mensajero implements Agente{
 					criptoanalizar(nx);
 				}else if( nx.obtenerTipo().equals("CRIPTOANALISIS") ){
 					new Cliente(nx, ((Criptoanalisis)nx).obtenerDestino()).enviar();
+				}else if( nx.obtenerTipo().startsWith("INMIGRACION") ){
+					inmigrar((Migracion)nx);
 				}
 			}
+		}
+		}catch (Exception ex) {
+			ex.printStackTrace();
 		}
 	}
 
@@ -98,6 +111,18 @@ public class Mensajero implements Agente{
 
 	public void agregarNodo(NodoConectado nuevoNodo){
 		nodosConectados.add(nuevoNodo);
+	}
+	
+	private void inmigrar(Migracion mig){
+		NodoConectado[] tmp = nodosConectados.toArray(new NodoConectado[0]);
+		NodoConectado dest = null;
+		while( dest == null ){
+			dest = tmp[rand.nextInt(tmp.length)];
+		}
+		Mensaje nx = new MensajeDeRed((Nodo)miNodo.clone(), dest.obtenerNodo(), 
+				new Migracion(mig.obtenerTipo(), null, null, null));
+		new Cliente(nx,dest.obtenerNodo()).enviar();
+		System.out.println("Migracion exitosa, adios buen hombre!!");
 	}
 
 
