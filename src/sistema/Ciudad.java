@@ -305,7 +305,7 @@ public class Ciudad extends Observable implements Agente{
 
 	/**
 	 * 
-	 * @param datos 0 -> dimension ; 1 -> ladrones ; 2 -> ciudadanos ; 3 -> policias 
+	 * @param datos:  0 -> dimension ; 1 -> ladrones ; 2 -> ciudadanos ; 3 -> policias 
 	 * @param direcciones
 	 * @return
 	 * @throws Exception

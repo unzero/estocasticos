@@ -30,10 +30,11 @@ public class Ciudadano implements Agente{
 		last =-1;
 		robado=false;
 		rand = new SecureRandom();
-		preferencia = new double[3];
+		preferencia = new double[4];
 		preferencia[0]= rand.nextDouble();
 		preferencia[1]= rand.nextDouble();
 		preferencia[2]= rand.nextDouble();
+		preferencia[3]= rand.nextDouble();
 	}
 
 	@Override
@@ -63,13 +64,15 @@ public class Ciudadano implements Agente{
 							last=2;
 							break;
 						}
-					}else{
+					}
+				}else{
+					if(preferencia[3]>=Ciudad.getInstance(null, null).obtenerIPG()){
 						migracion_int();
 						premiar();
 					}
 				}
 				
-				Thread.sleep(100);
+				Thread.sleep(1000);
 			}
 		}catch(Exception ex){
 			ex.printStackTrace();
@@ -96,8 +99,9 @@ public class Ciudadano implements Agente{
 		
 	}
 
-	private void migracion_out() {
-		// TODO Auto-generated method stub
+	private void migracion_out() throws Exception {
+		int[] pos = {pos_x,pos_y};
+		Ciudad.getInstance(null, null).mensajeNuevo(new Migracion("INMIGRACION", this, pos, null));
 		
 	}
 
@@ -142,4 +146,3 @@ public class Ciudadano implements Agente{
 	}
 
 }
-	

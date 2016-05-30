@@ -40,7 +40,7 @@ public class VistaCiudad extends JFrame implements Observer{
 	/**
 	 * Launch the application.
 	 */
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -51,12 +51,12 @@ public class VistaCiudad extends JFrame implements Observer{
 				}
 			}
 		});
-	}
+	}*/
 
 	/**
 	 * Create the frame.
 	 */
-	public VistaCiudad() {
+	public VistaCiudad(int[] datos,LinkedList<String> direcciones) {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
@@ -66,11 +66,7 @@ public class VistaCiudad extends JFrame implements Observer{
 		this.setSize(800, 600);
 
 		try{
-			int[] datos = {10,25,250,15};
-			LinkedList<String> direcciones = new LinkedList<>();
-			direcciones.add("127.0.0.1");
-			/*direcciones.add("192.168.2.10");
-			direcciones.add("192.168.2.9");*/
+
 			Ciudad ct = Ciudad.getInstance(datos, direcciones);
 			//Shalalalalalalalala
 			int dim=ct.obtenerDimension();

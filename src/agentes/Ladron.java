@@ -46,7 +46,7 @@ public class Ladron implements Agente{
 						posX = ((Migracion)nx).obtenerDestino()[0];
 						posY = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
-						//System.out.println("He sido capturado: "+cedula);
+						System.out.println("He sido capturado: "+cedula);
 						habilidad = 0.5*habilidad;
 						Thread.sleep((mult/10)*10000);
 						mult++;

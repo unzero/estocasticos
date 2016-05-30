@@ -39,10 +39,12 @@ public class Alcalde implements Agente{
 				Mensaje nx = bandeja.pollFirst();
 				if( nx.obtenerTipo().equals("CRIPTOANALISIS") ){
 					validarSospechosos(((Criptoanalisis)nx).obtenerIdentidades());
+				}else if( nx.obtenerTipo().equals("ASALTO") ){
+					debug("los ciudadanos se quejan blabal bla ");
 				}
 			}
 			organizarRedada();
-			Thread.sleep(5000);
+			Thread.sleep(2000);
 		}
 		}catch(Exception ex){
 			ex.printStackTrace();
