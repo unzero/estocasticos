@@ -69,6 +69,7 @@ public class VistaCiudad extends JFrame implements Observer{
 			int[] datos = {10,25,250,15};
 			LinkedList<String> direcciones = new LinkedList<>();
 			direcciones.add("192.168.2.10");
+			direcciones.add("192.168.2.9");
 			Ciudad ct = Ciudad.getInstance(datos, direcciones);
 			//Shalalalalalalalala
 			int dim=ct.obtenerDimension();

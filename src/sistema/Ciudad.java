@@ -54,6 +54,7 @@ public class Ciudad extends Observable implements Agente{
 			mensajero = Mensajero.getInstance(nodos);
 			Thread mens_th = new Thread(mensajero);
 			mens_th.start();
+			Thread.sleep(5000);
 
 			//DATOS BASICOS DE LA CIUDAD, COMO SU INDICE DE SEGUIRDAD INICIAL
 			dimension = datos[0];

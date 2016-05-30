@@ -76,7 +76,7 @@ public class Mensajero implements Agente{
 					Alcalde.getInstance(null).mensajeNuevo(nuevoMensaje);
 				}*/
 				if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("INMIGRACION")){
-					System.out.println("Un nuevo inmigrante");
+					System.out.println("Un nuevo inmigrante desde: "+((MensajeDeRed)nuevoMensaje).obtenerOrigen());
 					Ciudad.getInstance(null,null).mensajeNuevo(new Migracion(
 							((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo(),null,null,null));
 				}
