@@ -46,7 +46,8 @@ public class Ladron implements Agente{
 						posY = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
 						System.out.println("He sido capturado: "+cedula);
-						habilidad = 0.01;
+						habilidad = 0.5*habilidad;
+						Thread.sleep(10000);
 						//return;
 					}
 					//System.out.println("Migracion "+this);
@@ -78,7 +79,7 @@ public class Ladron implements Agente{
 	}
 	
 	private void robo() throws Exception{
-		System.out.println("Intento de robo");
+		//System.out.println("Intento de robo");
 		Agente victima = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
 		//System.out.println("Victima");
 		double indice = Ciudad.getInstance(null, null).obtenerIndice(posX, posY);
@@ -100,7 +101,7 @@ public class Ladron implements Agente{
 			if( habilidad > 0.97 ){
 				habilidad = 0.97;
 			}
-			System.out.println("Ladron: "+cedula+" : "+habilidad);
+			//System.out.println("Ladron: "+cedula+" : "+habilidad);
 		}
 	}
 	

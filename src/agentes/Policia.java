@@ -72,12 +72,15 @@ public class Policia implements Agente,Comparable<Policia> {
 		Agente civil = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
 		BetaDistribution beta = new BetaDistribution(2, 1);
 		double exito = beta.density(efectividad);
-		exito *= beta.density(1.0-Ciudad.getInstance(null, null).obtenerIndice(posX, posY)+0.01);
+		exito *= beta.density(Ciudad.getInstance(null, null).obtenerIndice(posX, posY));
 		
 		if( civil != null && civil.obtenerTipo().equals("LADRON") && exito >= 0.5 ){
-			
-			civil.mensajeNuevo(new Seguridad("CAPTURADO",posX,posY));
-			Ciudad.getInstance(null, null).mensajeNuevo(new Seguridad("CAPTURADO",posX, posY));
+			/*civil.mensajeNuevo(new Seguridad("CAPTURADO",posX,posY));
+			Ciudad.getInstance(null, null).mensajeNuevo(new Seguridad("CAPTURADO",posX, posY));*/
+			efectividad *= 1.005;
+		}else if( civil != null && civil.obtenerIdentidad().equals("LADRON") ){
+			double castigo = 0.1*(1-Ciudad.getInstance(null, null).obtenerIPG());
+			efectividad *= (1-castigo);
 		}
 		Ciudad.getInstance(null, null).mensajeNuevo(new Seguridad("VIGILANCIA",posX, posY));
 		System.out.println("Más seguridad en: "+posX+","+posY);

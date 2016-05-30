@@ -185,6 +185,7 @@ public class Ciudad extends Observable implements Agente{
 	}
 
 	public double obtenerIPG(){
+		calcularIPG();
 		return IPG;
 	}
 
@@ -201,12 +202,16 @@ public class Ciudad extends Observable implements Agente{
 	}
 	
 	public LinkedList<Policia> obtenerMejoresPolicias(int cantidad){
-		Policia[] ag = policia.values().toArray(new Policia[0]);
-		Arrays.sort(ag);
 		LinkedList<Policia> ret = new LinkedList<>();
+		/*
+		Arrays.sort(ag);
+	
 		for(int x=0;x<cantidad;++x){
 			ret.add(ag[x]);
-		}
+		}*/
+		Policia[] ag = policia.values().toArray(new Policia[0]);
+		ret.add( ag[rand.nextInt(ag.length)] );
+		ret.add( ag[rand.nextInt(ag.length)] );
 		return ret;
 	}
 

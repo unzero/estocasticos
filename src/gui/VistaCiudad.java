@@ -63,8 +63,10 @@ public class VistaCiudad extends JFrame implements Observer{
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 0));
 		setContentPane(contentPane);
+		this.setSize(800, 600);
+
 		try{
-			int[] datos = {10,25,250,5};
+			int[] datos = {10,25,250,15};
 			LinkedList<String> direcciones = new LinkedList<>();
 			direcciones.add("192.168.2.10");
 			Ciudad ct = Ciudad.getInstance(datos, direcciones);
@@ -92,9 +94,10 @@ public class VistaCiudad extends JFrame implements Observer{
 											
 											ArrayList <Agente> personas =Ciudad.getInstance(null, null).obtenerAHabitantes(i, j);
 											ventana = new JDialog();
-											ventana.setSize(new Dimension(100,200));
+											ventana.setSize(new Dimension(400,400));
 											ventana.setVisible(true);
 											ventana.setLocationRelativeTo(null);
+											ventana.setTitle("Información habitantes");
 											//BigInteger[] lista = new BigInteger[personas.size()];
 											Object[][] datos = new Object[personas.size()][2];
 											
@@ -143,6 +146,9 @@ public class VistaCiudad extends JFrame implements Observer{
 			System.out.println("NO SE HA PODIDO INCIAR EL SISTEMA");
 			ex.printStackTrace();
 		}
+		this.setLocationRelativeTo(null);
+		this.setTitle("Información - Ciudad");
+		contentPane.updateUI();
 	}
 
 
