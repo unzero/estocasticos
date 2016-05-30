@@ -155,5 +155,11 @@ public class Policia implements Agente,Comparable<Policia> {
 		}
 		return 0;
 	}
+	
+	/*
+	 * 	tmp = rand()
+	 * 
+	 * 
+	 */
 
 }

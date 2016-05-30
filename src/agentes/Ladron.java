@@ -84,7 +84,7 @@ public class Ladron implements Agente{
 			indice[x] = Ciudad.getInstance(null, null).obtenerIndice(i[x], j[x]);
 			personas[x] = Ciudad.getInstance(null, null).cantidadHabitantes(i[x], j[x]);
 		}
-		for(int x=0;x<1;++x){
+		for(int x=0;x<dim;++x){
 			for(int y=x+1;y<dim;++y){
 				if( personas[y] > personas[x] || (personas[y] == personas[x] && indice[y] >= indice[x]) ){
 					int tmp0 = i[x];
@@ -107,7 +107,13 @@ public class Ladron implements Agente{
 		}
 		
 		int[] org = {posX,posY};
-		int[] des = {i[0],j[0]};
+		int[] des = {};
+		if( rand.nextDouble() < 0.5){
+			des = new int[]{i[0],j[0]};
+		}else{
+			des = new int[]{i[1],j[1]};
+		}
+			
 		Ciudad.getInstance(null,null).mensajeNuevo(new Migracion("MIGRACION",this,org,des));	
 	}
 	
@@ -145,7 +151,7 @@ public class Ladron implements Agente{
 
 	private int siguienteAccion(){
 		double nx = rand.nextDouble();
-		if( nx < 0.05 ){
+		if( nx < 0.0005*(mult/5) ){
 			return MIGRACION_OUT;
 		}else if( nx < 0.4){
 			return MIGRACION_INT;
