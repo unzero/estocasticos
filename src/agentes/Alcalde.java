@@ -10,6 +10,8 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import javax.sound.midi.Synthesizer;
 
+import org.apache.commons.math3.distribution.BetaDistribution;
+
 import mensajes.Criptoanalisis;
 import mensajes.Mensaje;
 import mensajes.Seguridad;
@@ -32,7 +34,7 @@ public class Alcalde implements Agente{
 	
 	@Override
 	public void run(){
-		System.out.println("Peña-loza ha salido de su cama");
+		debug("Peña-loza ha salido de su cama");
 		try{
 		while( true ) {
 			if( !bandeja.isEmpty() ){
@@ -40,16 +42,42 @@ public class Alcalde implements Agente{
 				if( nx.obtenerTipo().equals("CRIPTOANALISIS") ){
 					validarSospechosos(((Criptoanalisis)nx).obtenerIdentidades());
 				}else if( nx.obtenerTipo().equals("ASALTO") ){
+					if( rand.nextBoolean() ){
+						inspeccionar(((Seguridad)nx).obtenerX(),((Seguridad)nx).obtenerY());
+					}
 					debug("los ciudadanos se quejan blabal bla ");
 				}
 			}
 			organizarRedada();
+			if( cierreFrontera() ){
+				Mensajero.getInstance(null).mensajeNuevo(new Seguridad("CIERREFRONTERA", -1, -1));
+			}
+			if( abranFrontera() ){
+				Mensajero.getInstance(null).mensajeNuevo(new Seguridad("ABRANFRONTERA", -1, -1));
+			}
 			Thread.sleep(2000);
 		}
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}
 		
+	}
+	
+	private boolean cierreFrontera() throws Exception{
+		double tmp1 = new BetaDistribution(2, 1).density(1-Ciudad.getInstance(null, null).obtenerIPG());
+		return tmp1 > 0.7;
+	}
+	
+	private boolean abranFrontera() throws Exception {
+		double tmp1 = new BetaDistribution(2, 1).density(Ciudad.getInstance(null, null).obtenerIPG());
+		return tmp1 > 0.7;
+	}
+	
+	private void inspeccionar(int nx,int ny) throws Exception{
+		LinkedList<Policia> escuadron = Ciudad.getInstance(null, null).obtenerPolicias(2);
+		for( Policia pol : escuadron ){
+			pol.mensajeNuevo(new Seguridad("REDADA", nx, ny));
+		}	
 	}
 	
 	private void organizarRedada() throws Exception{

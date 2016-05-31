@@ -29,6 +29,7 @@ public class Mensajero implements Agente{
 	private boolean estado;
 	private SecureRandom rand;
 	private Nodo miNodo;
+	private boolean fronteraAbierta;
 
 	private Mensajero(LinkedList<NodoConectado> nodos){
 		estado = true;
@@ -45,8 +46,9 @@ public class Mensajero implements Agente{
 		} catch (InterruptedException e) {}
 		if(!servidor.obtenerEstado()){
 			estado = false;
-			System.out.println("No ha sido posible iniciar el agente mensajero");
+			debug("No ha sido posible iniciar el agente mensajero");
 		}
+		fronteraAbierta = true;
 	}
 
 	@Override
@@ -58,12 +60,12 @@ public class Mensajero implements Agente{
 			Cliente cl = new Cliente(msj, nodoConectado.obtenerNodo() );
 
 			if( !cl.enviar() ){
-				System.out.println("ERROR AL ENVIAR EL MENSAJE");
+				debug("ERROR AL ENVIAR EL MENSAJE");
 			}
-			//System.out.println("Msj enviado");
+			//debug("Msj enviado");
 		}
 		 */
-		System.out.println("Mensajero iniciado");
+		debug("Mensajero iniciado");
 		try{
 		while( true ){
 
@@ -75,8 +77,22 @@ public class Mensajero implements Agente{
 				}else if( nuevoMensaje.obtenerTipo().equals("CRIPTOANALISIS") ){
 					Alcalde.getInstance(null).mensajeNuevo(nuevoMensaje);
 				}*/
-				if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("INMIGRACION")){
-					System.out.println("Un nuevo inmigrante desde: "+((MensajeDeRed)nuevoMensaje).obtenerOrigen());
+				if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("INMIGRACION")
+						&& fronteraAbierta){
+					debug("Un nuevo inmigrante desde: "+((MensajeDeRed)nuevoMensaje).obtenerOrigen());
+					Ciudad.getInstance(null,null).mensajeNuevo(new Migracion(
+							((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo(),null,null,null));
+				}else if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("INMIGRACION")
+						&& !fronteraAbierta){
+					Nodo dest = ((MensajeDeRed)nuevoMensaje).obtenerOrigen();
+					String tipo = "DEPORTADOC";
+					if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().equals("INMIGRACIONL") ){
+						tipo = "DEPORTADOL";
+					}
+					new Cliente(new MensajeDeRed((Nodo)miNodo.clone(), dest, 
+							new Migracion(tipo, null, null, null)), dest).enviar();
+				}else if( ((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo().startsWith("DEPORTADO")){
+					debug("Nuevo deportado");
 					Ciudad.getInstance(null,null).mensajeNuevo(new Migracion(
 							((MensajeDeRed)nuevoMensaje).obtenerMensaje().obtenerTipo(),null,null,null));
 				}
@@ -91,6 +107,12 @@ public class Mensajero implements Agente{
 					new Cliente(nx, ((Criptoanalisis)nx).obtenerDestino()).enviar();
 				}else if( nx.obtenerTipo().startsWith("INMIGRACION") ){
 					inmigrar((Migracion)nx);
+				}else if( nx.obtenerTipo().equals("CIERREFRONTERA" ) ){
+					fronteraAbierta = false;
+					debug("............................CIERREN LAS PUERTAS!!!!!!!!!!!!!!");
+				}else if( nx.obtenerTipo().equals("ABRANFRONTERA") ){
+					fronteraAbierta = true;
+					debug("VIENE UNA LOLI............................ABRAN LAS PUERTAS!!!!!!!!!!!!!!");
 				}
 			}
 		}
@@ -122,7 +144,7 @@ public class Mensajero implements Agente{
 		Mensaje nx = new MensajeDeRed((Nodo)miNodo.clone(), dest.obtenerNodo(), 
 				new Migracion(mig.obtenerTipo(), null, null, null));
 		new Cliente(nx,dest.obtenerNodo()).enviar();
-		System.out.println("Migracion exitosa, adios buen hombre!!");
+		debug("Migracion exitosa, adios buen hombre!!");
 	}
 
 
@@ -149,6 +171,10 @@ public class Mensajero implements Agente{
 			}
 		}
 		return mensajero;
+	}
+	
+	private void debug(String msj){
+		System.out.println("MENSAJERO: "+msj);
 	}
 
 }

@@ -37,7 +37,7 @@ public class Policia implements Agente,Comparable<Policia> {
 
 	@Override
 	public void run() {
-		System.out.println("Nuevo policía");
+		debug("Nuevo policía");
 		try{
 			while( true ){
 				double indiceInicial = Ciudad.getInstance(null, null).obtenerIndice(posX, posY);
@@ -66,7 +66,7 @@ public class Policia implements Agente,Comparable<Policia> {
 					if( nx.obtenerTipo().equals("REDADA") ){
 						posX = ((Seguridad)nx).obtenerX();
 						posY = ((Seguridad)nx).obtenerY();
-						//System.out.println("Redada en: "+posX+","+posY);
+						//debug("Redada en: "+posX+","+posY);
 					}
 				}else{
 					switch (siguienteAccion()) {
@@ -122,7 +122,7 @@ public class Policia implements Agente,Comparable<Policia> {
 		companero.enviarSenal(new Patrullar("PATRULLAR", this, pos[0],pos[1]));
 		Thread.sleep(100);
 		if( ! radio.isEmpty() && radio.peek().obtenerTipo().equals("RPATRULLAR") ){
-			System.out.println("trabajo en equipo!!!!!!!!!!!");
+			debug("trabajo en equipo!!!!!!!!!!!");
 			radio.peek();
 		}
 		posX = pos[0];
@@ -165,7 +165,7 @@ public class Policia implements Agente,Comparable<Policia> {
 	
 	private void migracion() throws Exception{
 		int[] pos =  nuevaPosicion(rand.nextDouble() < 0.3);
-		System.out.println("Policia moviendose a "+pos[0]+","+pos[1]);
+		debug("Policia moviendose a "+pos[0]+","+pos[1]);
 		posX = pos[0];
 		posY = pos[1];
 	}
@@ -191,7 +191,7 @@ public class Policia implements Agente,Comparable<Policia> {
 			efectividad = 0.97;
 		}
 		Ciudad.getInstance(null, null).mensajeNuevo(new Seguridad("VIGILANCIA",posX, posY));
-		//System.out.println("Más seguridad en: "+posX+","+posY);
+		//debug("Más seguridad en: "+posX+","+posY);
 		Thread.sleep(1000);
 		return false;
 	}
@@ -221,6 +221,10 @@ public class Policia implements Agente,Comparable<Policia> {
 			return 1;
 		}
 		return 0;
+	}
+	
+	private void debug(String msj){
+		System.out.println("POLICIA: "+msj);
 	}
 	
 	/*

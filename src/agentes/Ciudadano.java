@@ -39,7 +39,7 @@ public class Ciudadano implements Agente{
 
 	@Override
 	public void run(){
-		System.out.println(this);
+		debug(""+this);
 		try{
 			while( true ){
 				if( !bandeja.isEmpty() ){
@@ -48,7 +48,7 @@ public class Ciudadano implements Agente{
 						pos_x = ((Migracion)nx).obtenerDestino()[0];
 						pos_y = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("ROBO") ){
-						System.out.println("He sido robado en: "+pos_x+","+pos_y);
+						debug("He sido robado en: "+pos_x+","+pos_y);
 						castigar();
 						switch( siguienteAccion() ){
 						case MIGRACION_INT:
@@ -90,8 +90,6 @@ public class Ciudadano implements Agente{
 			preferencia[last] -= rand.nextDouble();
 		}
 	}
-
-	
 	
 	private void aviso() throws Exception {
 		Alcalde.getInstance(null).mensajeNuevo(new Seguridad ("ASALTO", pos_x, pos_y) );
@@ -143,6 +141,10 @@ public class Ciudadano implements Agente{
 	@Override
 	public String toString(){
 		return "Ciudadano en: "+pos_x+","+pos_y;
+	}
+	
+	private void debug(String msj){
+		System.out.println("CIUDADANO: "+msj);
 	}
 
 }

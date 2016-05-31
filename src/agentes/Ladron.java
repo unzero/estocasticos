@@ -36,7 +36,7 @@ public class Ladron implements Agente{
 
 	@Override
 	public void run(){
-		System.out.println(this);
+		debug(""+this);
 		try{
 			while( true ){
 				//LECTURA DE UN MENSAJE, SI LO HAY
@@ -46,13 +46,13 @@ public class Ladron implements Agente{
 						posX = ((Migracion)nx).obtenerDestino()[0];
 						posY = ((Migracion)nx).obtenerDestino()[1];
 					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
-						System.out.println("He sido capturado: "+cedula);
+						debug("He sido capturado: "+cedula);
 						habilidad = 0.5*habilidad;
 						Thread.sleep((mult/10)*10000);
 						mult++;
 						//return;
 					}
-					//System.out.println("Migracion "+this);
+					//debug("Migracion "+this);
 				}
 				switch( siguienteAccion() ){
 				case MIGRACION_INT:
@@ -118,9 +118,9 @@ public class Ladron implements Agente{
 	}
 	
 	private void robo() throws Exception{
-		//System.out.println("Intento de robo");
+		//debug("Intento de robo");
 		Agente victima = Ciudad.getInstance(null,null).obtenerHabitante(posX, posY);
-		//System.out.println("Victima");
+		//debug("Victima");
 		double indice = Ciudad.getInstance(null, null).obtenerIndice(posX, posY);
 		if( victima != null  && victima.obtenerTipo().equals("CIUDADANO") ){
 			BetaDistribution beta = new BetaDistribution(2, 1);
@@ -140,7 +140,7 @@ public class Ladron implements Agente{
 			if( habilidad > 0.97 ){
 				habilidad = 0.97;
 			}
-			//System.out.println("Ladron: "+cedula+" : "+habilidad);
+			//debug("Ladron: "+cedula+" : "+habilidad);
 		}
 	}
 	
@@ -177,6 +177,10 @@ public class Ladron implements Agente{
 	@Override
 	public String toString(){
 		return "Ladron en: "+posX+" , "+posY;
+	}
+	
+	private void debug(String msj){
+		System.out.println("LADRON: "+msj);
 	}
 
 }

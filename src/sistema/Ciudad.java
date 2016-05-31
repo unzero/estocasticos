@@ -24,7 +24,10 @@ import red.Servidor;
 
 public class Ciudad extends Observable implements Agente{
 
-
+	private static final int INTRODUCIRPOLICIA = 0;
+	private static final int INTRODUCIRLADRON = 1;
+	private static final int INTRODUCIRCIUDADANO = 2;
+	private static final int NONE = -1;
 	public static Ciudad ciudad;
 	//Datos de la ciudad 
 	private BigInteger identidad;
@@ -34,10 +37,10 @@ public class Ciudad extends Observable implements Agente{
 	private volatile double[][] indiceSeguridad;
 	private double IPG = 0.0;
 	private ConcurrentHashMap<BigInteger,Boolean>[][] posicion;
-	private HashMap<BigInteger, Agente> habitantes;
-	private HashMap<BigInteger, BigInteger> ladrones;
-	private HashMap<BigInteger, Agente> policia;
-	private HashMap<BigInteger, Boolean> cedulas;
+	private ConcurrentHashMap<BigInteger, Agente> habitantes;
+	private ConcurrentHashMap<BigInteger, BigInteger> ladrones;
+	private ConcurrentHashMap<BigInteger, Agente> policia;
+	private ConcurrentHashMap<BigInteger, Boolean> cedulas;
 	private LinkedBlockingDeque<Mensaje> bandeja;
 	private LinkedList<BigInteger> coprimos;
 	private SecureRandom rand;
@@ -54,7 +57,7 @@ public class Ciudad extends Observable implements Agente{
 			mensajero = Mensajero.getInstance(nodos);
 			Thread mens_th = new Thread(mensajero);
 			mens_th.start();
-			Thread.sleep(5000);
+			Thread.sleep(500);
 
 			//DATOS BASICOS DE LA CIUDAD, COMO SU INDICE DE SEGUIRDAD INICIAL
 			dimension = datos[0];
@@ -64,18 +67,20 @@ public class Ciudad extends Observable implements Agente{
 			for(int x=0;x<0x6;++x){
 				identidad = identidad.multiply(BigInteger.probablePrime(rand.nextInt(3)+2, new SecureRandom()));
 			}
-			System.out.println(identidad);
-			coprimos = buscarCoprimos();
+			debug(""+identidad);
+
+			//coprimos = buscarCoprimos();
+
 			indiceSeguridad = new double[dimension][dimension];
-			cedulas = new HashMap<>();
-			policia = new HashMap<>();
-			habitantes = new HashMap<>();
+			cedulas = new ConcurrentHashMap<>();
+			policia = new ConcurrentHashMap<>();
+			habitantes = new ConcurrentHashMap<>();
 			posicion = new ConcurrentHashMap[dimension][dimension];
 			bandeja = new LinkedBlockingDeque<>();
-			ladrones = new HashMap<>();
+			ladrones = new ConcurrentHashMap<>();
 			for(int i=0;i<dimension;++i){
 				for(int j=0;j<dimension;++j){
-					indiceSeguridad[i][j] = rand.nextDouble();
+					indiceSeguridad[i][j] = rand.nextDouble()/10.0;
 					posicion[i][j] = new ConcurrentHashMap<BigInteger,Boolean>();
 				}
 			}
@@ -95,7 +100,7 @@ public class Ciudad extends Observable implements Agente{
 				Thread ld_th = new Thread(ld);
 				ld_th.start();
 				posicion[i][j].put(cc, true);
-				//System.out.println("OK");
+				//debug("OK");
 			}
 
 			//INCIALIZACION DE AGENTES CIUDADANOS
@@ -111,7 +116,7 @@ public class Ciudad extends Observable implements Agente{
 				Thread cd_th = new Thread(ld);
 				cd_th.start();
 				posicion[i][j].put(cc, true);
-				//System.out.println("OK");
+				//debug("OK");
 			}			
 
 			//INICIALIZACION DE LOS AGENTES DE POLICIA
@@ -128,35 +133,92 @@ public class Ciudad extends Observable implements Agente{
 
 
 		}catch(Exception ex){
-			System.out.println(ex.getMessage());
+			debug(ex.getMessage());
 			estado = false;
 		}
 	}
 
 	@Override
 	public void run(){
-		while( true ){
-			if( !bandeja.isEmpty() ){
-				//System.out.println("msj nuevop");
-				Mensaje nx = bandeja.pollFirst();
-				if( nx.obtenerTipo().equals("MIGRACION")){
-					Migracion msj  = (Migracion)nx;
-					posicion[msj.obtenerOrigen()[0]][msj.obtenerOrigen()[1]].remove(msj.obtenerMigrante().obtenerIdentidad());
-					posicion[msj.obtenerDestino()[0]][msj.obtenerDestino()[1]].put(msj.obtenerMigrante().obtenerIdentidad(), true);
-					msj.obtenerMigrante().mensajeNuevo(new Migracion("MIGRACION",null,msj.obtenerOrigen(),msj.obtenerDestino()));	
-				}else if( nx.obtenerTipo().equals("INMIGRACION") ){
-					inmigrar((Migracion)nx);
-				}else if( nx.obtenerTipo().startsWith("INMIGRACION")){
-					nuevaInmigracion((Migracion)nx);
-				}else if( nx.obtenerTipo().equals("ROBO") ){
-					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), -1);
-				}else if( nx.obtenerTipo().equals("CAPTURADO") ){
-					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 1);
-				}else if( nx.obtenerTipo().equals("VIGILANCIA") ){
-					recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 0.2);
+		try{
+			while( true ){
+				if( !bandeja.isEmpty() ){
+					//debug("msj nuevop");
+					Mensaje nx = bandeja.pollFirst();
+					if( nx.obtenerTipo().equals("MIGRACION")){
+						Migracion msj  = (Migracion)nx;
+						posicion[msj.obtenerOrigen()[0]][msj.obtenerOrigen()[1]].remove(msj.obtenerMigrante().obtenerIdentidad());
+						posicion[msj.obtenerDestino()[0]][msj.obtenerDestino()[1]].put(msj.obtenerMigrante().obtenerIdentidad(), true);
+						msj.obtenerMigrante().mensajeNuevo(new Migracion("MIGRACION",null,msj.obtenerOrigen(),msj.obtenerDestino()));	
+					}else if( nx.obtenerTipo().equals("INMIGRACION") ){
+						inmigrar((Migracion)nx);
+					}else if( nx.obtenerTipo().startsWith("INMIGRACION") || nx.obtenerTipo().startsWith("DEPORTADO")){
+						nuevaInmigracion((Migracion)nx);
+					}else if( nx.obtenerTipo().equals("ROBO") ){
+						recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), -1);
+					}else if( nx.obtenerTipo().equals("CAPTURADO") ){
+						recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 1);
+					}else if( nx.obtenerTipo().equals("VIGILANCIA") ){
+						recalcularIndice(((Seguridad)nx).obtenerX(), ((Seguridad)nx).obtenerY(), 0.2);
+					}
 				}
+
+				switch (siguienteAccion()) {
+				case INTRODUCIRPOLICIA:
+					nuevoPolicia();
+					break;
+				case INTRODUCIRLADRON:
+					nuevoHabitante("Ladron");
+					break;
+				case INTRODUCIRCIUDADANO:
+					nuevoHabitante("Ciudadano");
+					break;
+				}
+				
 			}
+		}catch(Exception ex){
+			ex.printStackTrace();
 		}
+	}
+	
+	private int siguienteAccion(){
+		double nx = rand.nextDouble();
+		if( nx < 0.00000001 ){
+			return INTRODUCIRCIUDADANO;
+		}else if( nx < 0.00000002){
+			return INTRODUCIRLADRON;
+		}else if( nx < 0.00000003){
+			return INTRODUCIRPOLICIA;
+		}
+		return NONE;
+	}
+
+	private void nuevoPolicia(){
+		int i = rand.nextInt(dimension), j = rand.nextInt(dimension);
+		Policia pol = new Policia(i,j,rand.nextDouble());
+		new Thread(pol).start();
+		policia.put(new BigInteger(""+policia.size()), pol);
+		debug("Nuevo policia para el sistema------------------");
+	}
+
+	private void nuevoHabitante(String tipo){
+		BigInteger cc = new BigInteger(30, new SecureRandom()).mod(identidad);
+		while( cedulas.containsKey(cc) ){
+			cc = new BigInteger(100, new SecureRandom()).mod(identidad);
+		}
+		cedulas.put(cc, true);
+		int i = new Random().nextInt(dimension), j = new Random().nextInt(dimension);
+		Agente ag = null;
+		if( tipo.equals("Ladron") ){
+			ag = new Ladron(cc, i, j);
+		}else{
+			ag = new Ciudadano(cc, i, j);
+		}
+		habitantes.put(cc, ag);
+		Thread cd_th = new Thread(ag);
+		cd_th.start();
+		posicion[i][j].put(cc, true);
+		debug("Nuevo "+tipo+" para el sistema------------------");
 	}
 
 	public double obtenerIndice(int i,int j){
@@ -171,7 +233,7 @@ public class Ciudad extends Observable implements Agente{
 			indiceSeguridad[i][j] = 1;
 		}
 		setChanged();
-		//System.out.println(indiceSeguridad[i][j]);
+		//debug(indiceSeguridad[i][j]);
 		notifyObservers(new Punto(i,j));
 	}
 
@@ -237,23 +299,19 @@ public class Ciudad extends Observable implements Agente{
 		return ret;
 	}
 
-	private void inmigrar(Migracion nx){
-		try{
-			System.out.println("Nueva inmigracion: "+nx.obtenerMigrante().obtenerIdentidad());
-			cedulas.remove(nx.obtenerMigrante().obtenerIdentidad());
-			ladrones.remove(nx.obtenerMigrante().obtenerIdentidad());
-			habitantes.remove(nx.obtenerMigrante().obtenerIdentidad());
-			posicion[nx.obtenerOrigen()[0]][nx.obtenerOrigen()[1]].remove(nx.obtenerMigrante().obtenerIdentidad());
-			String tipo = "INMIGRACION";
-			if( nx.obtenerMigrante().obtenerTipo().equals("LADRON") ){
-				tipo += "L";
-			}else{
-				tipo += "C";
-			}	
-			Mensajero.getInstance(null).mensajeNuevo(new Migracion(tipo, null, null, null));
-		}catch(Exception ex){
-			ex.printStackTrace();
-		}
+	private void inmigrar(Migracion nx) throws Exception{
+		debug("Nueva inmigracion: "+nx.obtenerMigrante().obtenerIdentidad());
+		cedulas.remove(nx.obtenerMigrante().obtenerIdentidad());
+		ladrones.remove(nx.obtenerMigrante().obtenerIdentidad());
+		habitantes.remove(nx.obtenerMigrante().obtenerIdentidad());
+		posicion[nx.obtenerOrigen()[0]][nx.obtenerOrigen()[1]].remove(nx.obtenerMigrante().obtenerIdentidad());
+		String tipo = "INMIGRACION";
+		if( nx.obtenerMigrante().obtenerTipo().equals("LADRON") ){
+			tipo += "L";
+		}else{
+			tipo += "C";
+		}	
+		Mensajero.getInstance(null).mensajeNuevo(new Migracion(tipo, null, null, null));
 	}
 
 	public ArrayList<Agente> obtenerAHabitantes(int x, int y){
@@ -267,27 +325,16 @@ public class Ciudad extends Observable implements Agente{
 	public int cantidadHabitantes(int i,int j){
 		return posicion[i][j].size();
 	}
-	
+
 	private void nuevaInmigracion(Migracion nx){
-		BigInteger cc = new BigInteger(30, new SecureRandom()).mod(identidad);
-		while( cedulas.containsKey(cc) ){
-			cc = new BigInteger(100, new SecureRandom()).mod(identidad);
+		String tipo = "Ciudadano";
+		if( nx.obtenerTipo().equals("INMIGRACIONL") || nx.obtenerTipo().equals("DEPORTADOL") ){
+			tipo = "Ladron";
 		}
-		cedulas.put(cc, true);
-		int i = new Random().nextInt(dimension), j = new Random().nextInt(dimension);
-		Agente ag = null;
-		if( nx.obtenerTipo().equals("INMIGRACIONL") ){
-			ag = new Ladron(cc, i, j);
-		}else{
-			ag = new Ciudadano(cc, i, j);
-		}
-		habitantes.put(cc, ag);
-		Thread cd_th = new Thread(ag);
-		cd_th.start();
-		posicion[i][j].put(cc, true);
-		System.out.println("Nueva entrada de inmigrante");
+		nuevoHabitante(tipo);
+		debug("Nueva entrada de inmigrante: "+nx.obtenerTipo());
 	}
-	
+
 	@Override
 	public String obtenerTipo(){
 		return "CIUDAD";
@@ -318,6 +365,10 @@ public class Ciudad extends Observable implements Agente{
 			}
 		}
 		return ciudad;
+	}
+
+	private void debug(String msj){
+		System.out.println("CIUDAD: "+msj);
 	}
 
 }

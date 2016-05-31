@@ -236,6 +236,7 @@ public class Conexiones extends javax.swing.JFrame {
 		this.policias.setText("25");
 		this.tamano.setText("10");
 		this.jButton1.doClick();
+		//this.jButton3.doClick();
 		pack();
 		this.setTitle("Modelos Estocásticos");
 		this.setLocationRelativeTo(null);
