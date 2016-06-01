@@ -57,7 +57,7 @@ public class Ciudad extends Observable implements Agente{
 			mensajero = Mensajero.getInstance(nodos);
 			Thread mens_th = new Thread(mensajero);
 			mens_th.start();
-			Thread.sleep(500);
+			Thread.sleep(5000);
 
 			//DATOS BASICOS DE LA CIUDAD, COMO SU INDICE DE SEGUIRDAD INICIAL
 			dimension = datos[0];
@@ -80,7 +80,7 @@ public class Ciudad extends Observable implements Agente{
 			ladrones = new ConcurrentHashMap<>();
 			for(int i=0;i<dimension;++i){
 				for(int j=0;j<dimension;++j){
-					indiceSeguridad[i][j] = rand.nextDouble()/10.0;
+					indiceSeguridad[i][j] = rand.nextDouble();
 					posicion[i][j] = new ConcurrentHashMap<BigInteger,Boolean>();
 				}
 			}

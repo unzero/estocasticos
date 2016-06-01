@@ -51,8 +51,7 @@ public class Alcalde implements Agente{
 			organizarRedada();
 			if( cierreFrontera() ){
 				Mensajero.getInstance(null).mensajeNuevo(new Seguridad("CIERREFRONTERA", -1, -1));
-			}
-			if( abranFrontera() ){
+			}else if( abranFrontera() ){
 				Mensajero.getInstance(null).mensajeNuevo(new Seguridad("ABRANFRONTERA", -1, -1));
 			}
 			Thread.sleep(2000);
@@ -65,12 +64,14 @@ public class Alcalde implements Agente{
 	
 	private boolean cierreFrontera() throws Exception{
 		double tmp1 = new BetaDistribution(2, 1).density(1-Ciudad.getInstance(null, null).obtenerIPG());
-		return tmp1 > 0.7;
+		debug(""+(1-Ciudad.getInstance(null, null).obtenerIPG()));
+		debug(""+tmp1);
+		return Ciudad.getInstance(null, null).obtenerIPG() < 0.25 ;
 	}
 	
 	private boolean abranFrontera() throws Exception {
 		double tmp1 = new BetaDistribution(2, 1).density(Ciudad.getInstance(null, null).obtenerIPG());
-		return tmp1 > 0.7;
+		return Ciudad.getInstance(null, null).obtenerIPG() > 0.5 ;
 	}
 	
 	private void inspeccionar(int nx,int ny) throws Exception{
